@@ -18,12 +18,28 @@
       <p>
         When two waves meet, the resultant displacement at each point is the sum of the displacements caused by each wave.
       </p>
+      <p class="cn-text">
+        当两个波相遇时，每一点的合位移等于两个波在该点位移的代数和。
+      </p>
       <p class="equation">y<sub>resultant</sub> = y<sub>1</sub> + y<sub>2</sub></p>
+      <div class="colour-legend" aria-label="Wave colour legend">
+        <h3>Colour legend / 颜色图例</h3>
+        <div class="legend-items">
+          <span><i class="legend-swatch wave1"></i>Wave 1 / 波 1</span>
+          <span><i class="legend-swatch wave2"></i>Wave 2 / 波 2</span>
+          <span><i class="legend-swatch resultant"></i>Resultant wave / 合成波</span>
+        </div>
+      </div>
     </section>
 
     <section class="panel">
       <h2>Two Pulse Superposition</h2>
       <canvas id="pulseCanvas" width="1100" height="360" aria-label="Pulse superposition animation"></canvas>
+      <aside class="observe-box">
+        <h3>What to observe</h3>
+        <p>Watch how the pulses add point-by-point when they overlap, then continue unchanged after meeting.</p>
+        <p class="cn-text">观察两个脉冲在重叠时如何逐点相加，以及相遇后如何保持原形继续传播。</p>
+      </aside>
       <div class="controls-grid">
         <label>Amplitude 1: <span id="amp1Value">70</span>
           <input id="amp1" type="range" min="20" max="120" value="70" />
@@ -50,29 +66,50 @@
     <section class="panel">
       <h2>Continuous Wave Phase</h2>
       <canvas id="phaseCanvas" width="1100" height="360" aria-label="Continuous wave phase animation"></canvas>
+      <aside class="observe-box">
+        <h3>What to observe</h3>
+        <p>Change the phase difference and compare constructive, partial and destructive interference.</p>
+        <p class="cn-text">改变相位差，比较相长干涉、部分干涉和相消干涉。</p>
+      </aside>
       <div class="controls-grid single-row">
         <label>Phase difference: <span id="phaseDeg">0</span>° (<span id="phaseRad">0.00</span> rad)
           <input id="phase" type="range" min="0" max="360" value="0" />
         </label>
       </div>
       <p id="interferenceLabel" class="interference-label">Interference type: Constructive interference (in phase)</p>
+      <p class="cn-text strong-note">
+        只有当两列波振幅相等且相位差恰好为 180° 时，才会出现完全相消。
+      </p>
     </section>
 
     <section class="panel">
       <h2>Wavefronts and Rays</h2>
       <canvas id="wavefrontCanvas" width="1100" height="300" aria-label="Wavefronts and rays"></canvas>
+      <aside class="observe-box">
+        <h3>What to observe</h3>
+        <p>Wavefront lines join points in the same phase, while rays show the direction of energy transfer.</p>
+        <p class="cn-text">波前线连接同相位点，射线显示能量传播方向。</p>
+      </aside>
       <p>
         Wavefronts connect points that are in the same phase. Rays show the direction of wave travel and are perpendicular to the wavefronts.
       </p>
+      <p class="cn-text">波前连接同相位的点。射线表示波的传播方向，并且与波前垂直。</p>
     </section>
 
     <section class="panel exam-panel">
       <h2>Exam Language (A-Level style)</h2>
       <ul>
         <li>Superposition occurs when waves meet and the resultant displacement is the vector sum of the individual displacements.</li>
+        <li class="cn-text">当波相遇时会发生叠加，合位移等于各波位移的矢量和。</li>
         <li>Constructive interference occurs when waves meet in phase, producing a larger amplitude resultant wave.</li>
+        <li class="cn-text">同相位相遇会产生相长干涉，合成波振幅更大。</li>
         <li>Destructive interference occurs when waves meet in antiphase, producing a smaller amplitude resultant wave.</li>
+        <li class="cn-text">反相位相遇会产生相消干涉，合成波振幅减小。</li>
       </ul>
+      <p class="strong-note">
+        Complete cancellation only occurs when the two waves have equal amplitude and are exactly 180° out of phase.
+      </p>
+      <p class="cn-text strong-note">只有当两列波振幅相等且相位差恰好为 180° 时，才会完全相消。</p>
     </section>
   </main>
 
