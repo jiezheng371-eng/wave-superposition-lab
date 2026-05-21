@@ -20,8 +20,7 @@ const controls = {
   phase: document.getElementById("phase"),
   animationSpeed: document.getElementById("animationSpeed"),
   wavefrontSpeed: document.getElementById("wavefrontSpeed"),
-  wavefrontAngle: document.getElementById("wavefrontAngle"),
-  showSamePhasePoints: document.getElementById("showSamePhasePoints"),
+
 };
 
 const readouts = {
@@ -35,7 +34,7 @@ const readouts = {
   animationSpeed: document.getElementById("animationSpeedValue"),
   interferenceLabel: document.getElementById("interferenceLabel"),
   wavefrontSpeed: document.getElementById("wavefrontSpeedValue"),
-  wavefrontAngle: document.getElementById("wavefrontAngleValue"),
+
 };
 
 const pulsePlayPauseButton = document.getElementById("pulsePlayPause");
@@ -238,12 +237,12 @@ let wavefrontPhaseOffset = 0;
 let wavefrontRunning = true;
 
 function drawArrow(ctx, sx, sy, ex, ey, color) {
-  const head = 16;
+  const head = 14;
   const angle = Math.atan2(ey - sy, ex - sx);
   ctx.save();
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
-  ctx.lineWidth = 5;
+  ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.moveTo(sx, sy);
   ctx.lineTo(ex, ey);
@@ -260,73 +259,65 @@ function drawArrow(ctx, sx, sy, ex, ey, color) {
 function drawWavefrontScene() {
   const width = wavefrontCanvas.width;
   const height = wavefrontCanvas.height;
-  const speed = Number(controls.wavefrontSpeed.value);
-  const angleRad = Number(controls.wavefrontAngle.value) * Math.PI / 180;
+  const spacing = 90;
+  const offset = ((wavefrontPhaseOffset % spacing) + spacing) % spacing;
+  const highlightX = offset;
 
   wavefrontCtx.clearRect(0, 0, width, height);
 
-  const cx = width * 0.46;
-  const cy = height * 0.52;
-  const spacing = 75;
-  const lineLength = Math.max(width, height) * 1.8;
-
-  const tangentX = Math.cos(angleRad);
-  const tangentY = Math.sin(angleRad);
-  const normalX = -Math.sin(angleRad);
-  const normalY = Math.cos(angleRad);
-
-  const offset = ((wavefrontPhaseOffset % spacing) + spacing) % spacing;
-  let highlightBaseX = cx + (offset * normalX);
-  let highlightBaseY = cy + (offset * normalY);
-
-  for (let i = -9; i <= 9; i += 1) {
-    const shift = (i * spacing) + offset;
-    const bx = cx + shift * normalX;
-    const by = cy + shift * normalY;
-    const x1 = bx - lineLength * tangentX;
-    const y1 = by - lineLength * tangentY;
-    const x2 = bx + lineLength * tangentX;
-    const y2 = by + lineLength * tangentY;
-    wavefrontCtx.strokeStyle = i === 0 ? '#9b2fd8' : '#5c79c3';
-    wavefrontCtx.lineWidth = i === 0 ? 5 : 3;
+  for (let x = highlightX - spacing * 20; x <= width + spacing * 20; x += spacing) {
+    const isHighlight = Math.abs(x - highlightX) < 0.001;
+    wavefrontCtx.strokeStyle = isHighlight ? '#9b2fd8' : '#5c79c3';
+    wavefrontCtx.lineWidth = isHighlight ? 5 : 3;
     wavefrontCtx.beginPath();
-    wavefrontCtx.moveTo(x1, y1);
-    wavefrontCtx.lineTo(x2, y2);
+    wavefrontCtx.moveTo(x, 36);
+    wavefrontCtx.lineTo(x, height - 46);
     wavefrontCtx.stroke();
   }
 
-  const rayStartX = width * 0.10;
-  const rayStartY = height * 0.20;
-  const rayEndX = rayStartX + normalX * 220;
-  const rayEndY = rayStartY + normalY * 220;
-  drawArrow(wavefrontCtx, rayStartX, rayStartY, rayEndX, rayEndY, '#cc3f0c');
+  wavefrontCtx.setLineDash([8, 7]);
+  wavefrontCtx.strokeStyle = '#9b2fd8';
+  wavefrontCtx.lineWidth = 3;
+  wavefrontCtx.beginPath();
+  wavefrontCtx.moveTo(highlightX, height - 44);
+  wavefrontCtx.lineTo(highlightX, height);
+  wavefrontCtx.stroke();
+  wavefrontCtx.setLineDash([]);
 
-  wavefrontCtx.fillStyle = '#1f2a3d';
-  wavefrontCtx.font = 'bold 28px Segoe UI';
-  wavefrontCtx.fillText('Ray direction', rayEndX + 10, rayEndY + 8);
-
-  wavefrontCtx.font = 'bold 27px Segoe UI';
-  wavefrontCtx.fillStyle = '#9b2fd8';
-  wavefrontCtx.fillText('Wavefront', highlightBaseX + 24, highlightBaseY - 12);
-
-  if (controls.showSamePhasePoints.checked) {
+  for (let y = 82; y <= 238; y += 52) {
     wavefrontCtx.fillStyle = '#9b2fd8';
-    for (let t = -160; t <= 160; t += 80) {
-      const px = highlightBaseX + t * tangentX;
-      const py = highlightBaseY + t * tangentY;
-      wavefrontCtx.beginPath();
-      wavefrontCtx.arc(px, py, 8, 0, TAU);
-      wavefrontCtx.fill();
-    }
-    wavefrontCtx.fillStyle = '#1f2a3d';
-    wavefrontCtx.font = 'bold 24px Segoe UI';
-    wavefrontCtx.fillText('same phase', highlightBaseX + 10, highlightBaseY + 36);
+    wavefrontCtx.beginPath();
+    wavefrontCtx.arc(highlightX, y, 7, 0, TAU);
+    wavefrontCtx.fill();
   }
 
-  drawLinkedSine(normalX, offset, spacing, speed);
+  wavefrontCtx.fillStyle = '#1f2a3d';
+  wavefrontCtx.font = 'bold 22px Segoe UI';
+  wavefrontCtx.fillText('same phase points / 同相位点', Math.min(highlightX + 18, width - 360), 84);
+  wavefrontCtx.font = '20px Segoe UI';
+  wavefrontCtx.fillText('All points on this wavefront are in the same phase.', 30, 296);
+  wavefrontCtx.fillText('这条波前上的所有点处于同一相位。', 30, 324);
+
+  drawArrow(wavefrontCtx, 70, 34, 370, 34, '#cc3f0c');
+  wavefrontCtx.fillStyle = '#1f2a3d';
+  wavefrontCtx.font = 'bold 20px Segoe UI';
+  wavefrontCtx.fillText('Ray direction / wave travel direction', 390, 40);
+  wavefrontCtx.fillText('射线方向 / 波传播方向', 390, 66);
+  wavefrontCtx.fillText('ray ⟂ wavefront / 射线 ⟂ 波前', 720, 94);
+
+  const lambdaStart = highlightX + spacing;
+  const lambdaEnd = highlightX + spacing * 2;
+  if (lambdaEnd < width - 50) {
+    drawArrow(wavefrontCtx, lambdaStart, height - 20, lambdaEnd, height - 20, '#1f2a3d');
+    drawArrow(wavefrontCtx, lambdaEnd, height - 20, lambdaStart, height - 20, '#1f2a3d');
+    wavefrontCtx.font = 'bold 20px Segoe UI';
+    wavefrontCtx.fillText('one wavelength λ / 一个波长 λ', lambdaStart + 6, height - 26);
+  }
+
+  drawLinkedSine(highlightX, spacing);
 }
 
-function drawLinkedSine(normalX, offset, spacing) {
+function drawLinkedSine(highlightX, spacing) {
   const width = linkedWaveCanvas.width;
   const height = linkedWaveCanvas.height;
   const midY = height / 2;
@@ -340,9 +331,9 @@ function drawLinkedSine(normalX, offset, spacing) {
   linkedWaveCtx.stroke();
 
   const amp = 42;
-  const wavelength = 220;
+  const wavelength = spacing;
   const k = TAU / wavelength;
-  const phase = (offset / spacing) * TAU;
+  const phase = (highlightX / spacing) * TAU;
 
   linkedWaveCtx.strokeStyle = '#127a8a';
   linkedWaveCtx.lineWidth = 4;
@@ -353,29 +344,30 @@ function drawLinkedSine(normalX, offset, spacing) {
   }
   linkedWaveCtx.stroke();
 
-  const markerX = width * 0.35;
-  const markerY = midY - amp * Math.sin(k * markerX - phase);
+  const crestX = highlightX;
+  const crestY = midY - amp;
   linkedWaveCtx.fillStyle = '#9b2fd8';
   linkedWaveCtx.beginPath();
-  linkedWaveCtx.arc(markerX, markerY, 9, 0, TAU);
+  linkedWaveCtx.arc(crestX, crestY, 8, 0, TAU);
   linkedWaveCtx.fill();
 
+  linkedWaveCtx.setLineDash([8, 7]);
   linkedWaveCtx.strokeStyle = '#9b2fd8';
-  linkedWaveCtx.setLineDash([8, 8]);
+  linkedWaveCtx.lineWidth = 3;
   linkedWaveCtx.beginPath();
-  linkedWaveCtx.moveTo(markerX, markerY + 10);
-  linkedWaveCtx.lineTo(markerX, height - 8);
+  linkedWaveCtx.moveTo(crestX, 0);
+  linkedWaveCtx.lineTo(crestX, crestY - 10);
   linkedWaveCtx.stroke();
   linkedWaveCtx.setLineDash([]);
 
   linkedWaveCtx.fillStyle = '#1f2a3d';
-  linkedWaveCtx.font = 'bold 23px Segoe UI';
-  linkedWaveCtx.fillText('Linked sinusoidal view (same phase marker)', 20, 32);
+  linkedWaveCtx.font = 'bold 20px Segoe UI';
+  linkedWaveCtx.fillText('corresponding crest / 对应波峰', Math.min(crestX + 16, width - 300), crestY - 16);
+  linkedWaveCtx.fillText('same phase shown as a crest / 同一相位在正弦图中显示为波峰', 26, 30);
 }
 
 function updateWavefrontReadouts() {
   readouts.wavefrontSpeed.textContent = Number(controls.wavefrontSpeed.value).toFixed(2);
-  readouts.wavefrontAngle.textContent = String(Math.round(Number(controls.wavefrontAngle.value)));
 }
 
 function updateControlReadouts() {
@@ -425,7 +417,6 @@ updateAnimationSpeedReadout();
 animate();
 
 controls.wavefrontSpeed.addEventListener("input", updateWavefrontReadouts);
-controls.wavefrontAngle.addEventListener("input", updateWavefrontReadouts);
 
 wavefrontPlayPauseButton.addEventListener("click", () => {
   wavefrontRunning = !wavefrontRunning;
@@ -435,15 +426,9 @@ wavefrontPlayPauseButton.addEventListener("click", () => {
 wavefrontResetButton.addEventListener("click", () => {
   wavefrontPhaseOffset = 0;
   controls.wavefrontSpeed.value = "0.6";
-  controls.wavefrontAngle.value = "90";
-  controls.showSamePhasePoints.checked = true;
   wavefrontRunning = true;
   wavefrontPlayPauseButton.textContent = "Pause";
   updateWavefrontReadouts();
-});
-
-controls.showSamePhasePoints.addEventListener("change", () => {
-  drawWavefrontScene();
 });
 
 updateWavefrontReadouts();
