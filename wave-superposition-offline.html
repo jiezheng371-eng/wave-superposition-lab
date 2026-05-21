@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wave Superposition Interactive Lab</title>
+  <style>
+:root {
+  --bg: #f4f7fb;
+  --panel: #ffffff;
+  --text: #1f2a3d;
+  --muted: #3b4b65;
+  --accent: #1648d8;
+  --wave1: #0068a8;
+  --wave2: #c83e0e;
+  --resultant: #117a2f;
+  --axis: #707d93;
+  --shadow: rgba(17, 44, 84, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.hero {
+  background: linear-gradient(135deg, #113171, #1847a0);
+  color: #fff;
+  text-align: center;
+  padding: 2.2rem 1.2rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3.8vw, 3rem);
+}
+
+.subtitle {
+  margin: 0.8rem 0 0;
+  font-size: clamp(1.1rem, 2.3vw, 1.45rem);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 1rem auto 2rem;
+  padding: 0 1rem;
+}
+
+.panel {
+  background: var(--panel);
+  border-radius: 14px;
+  box-shadow: 0 4px 18px var(--shadow);
+  padding: 1rem 1rem 1.5rem;
+  margin: 1rem 0;
+}
+
+h2 {
+  font-size: clamp(1.35rem, 2.6vw, 2rem);
+  margin-top: 0.2rem;
+  margin-bottom: 0.9rem;
+}
+
+p, li, label, button, select {
+  font-size: clamp(1.04rem, 1.95vw, 1.28rem);
+}
+
+.principle-panel p {
+  font-size: clamp(1.12rem, 2vw, 1.35rem);
+}
+
+.equation {
+  font-size: clamp(1.35rem, 2.6vw, 1.9rem);
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0.5rem 0 0;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  border: 2px solid #dbe2ef;
+  border-radius: 10px;
+  background: #fcfdff;
+  margin-bottom: 0.4rem;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem 1.2rem;
+  margin-top: 1rem;
+}
+
+.controls-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 38px;
+  accent-color: var(--accent);
+}
+
+.button-row {
+  display: flex;
+  gap: 0.9rem;
+  margin-top: 1.1rem;
+  flex-wrap: wrap;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 0.9rem 1.3rem;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  min-width: 130px;
+}
+
+button:hover {
+  filter: brightness(1.1);
+}
+
+
+.phase-controls-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.phase-control-box {
+  border: 2px solid #d5def2;
+  border-radius: 12px;
+  background: #f8faff;
+  padding: 0.9rem 1.1rem 1rem;
+}
+
+.long-touch-slider {
+  width: 100%;
+  min-height: 46px;
+}
+
+.long-touch-slider::-webkit-slider-thumb {
+  width: 28px;
+  height: 28px;
+}
+
+.long-touch-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+}
+
+.speed-box {
+  margin-top: 0.25rem;
+}
+
+
+.phase-control-title {
+  display: block;
+  font-weight: 700;
+  color: #1f3d87;
+  margin-bottom: 0.3rem;
+}
+
+.phase-readout {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  font-weight: 700;
+  color: #20375c;
+  white-space: nowrap;
+}
+
+.interference-label {
+  margin: 0.9rem 0 0;
+  font-weight: 700;
+  color: #173f97;
+}
+
+.colour-legend {
+  margin-top: 0.9rem;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: #eef3ff;
+}
+
+.colour-legend h3 {
+  margin: 0 0 0.45rem;
+  font-size: clamp(1.1rem, 2.1vw, 1.35rem);
+}
+
+.legend-items {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-weight: 700;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 0.4rem;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+.wave1 { background: var(--wave1); }
+.wave2 { background: var(--wave2); }
+.resultant { background: var(--resultant); }
+
+.observe-box {
+  margin-top: 0.9rem;
+  padding: 0.8rem 1rem;
+  border-left: 6px solid var(--accent);
+  background: #f3f7ff;
+  border-radius: 8px;
+}
+
+.observe-box h3 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.08rem, 1.9vw, 1.34rem);
+}
+
+.cn-text {
+  margin-top: 0.35rem;
+  color: #2e3f5d;
+}
+
+.strong-note {
+  font-weight: 700;
+  color: #143a8f;
+}
+
+.exam-panel ul {
+  margin: 0.2rem 0 0;
+  padding-left: 1.3rem;
+}
+
+.exam-panel li + li {
+  margin-top: 0.55rem;
+}
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 0.85rem;
+  }
+
+  .phase-readout {
+    white-space: normal;
+  }
+}
+
+.wf-main { background: #5c79c3; }
+.wf-highlight { background: #9b2fd8; }
+.wf-ray { background: #cc3f0c; }
+.wf-sine { background: #127a8a; }
+
+.wavefront-diagram-grid {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.wavefront-controls {
+  margin-top: 1rem;
+}
+
+.wavefront-controls .toggle-label {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0.9rem;
+  border: 2px solid #d5def2;
+  border-radius: 10px;
+  background: #f8faff;
+}
+
+.wavefront-controls input[type="checkbox"] {
+  width: 32px;
+  height: 32px;
+  accent-color: var(--accent);
+}
+
+.wavefront-legend {
+  margin-top: 0.8rem;
+}
+
+.exam-language-box {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: 2px solid #d5def2;
+  border-radius: 10px;
+  background: #f8faff;
+}
+
+.exam-language-box h3 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+}
+
+.exam-language-box ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.representation-note {
+  margin-top: 0.9rem;
+  font-weight: 700;
+  color: #173f97;
+}
+
+.wavefront-explain {
+  margin-top: 0.7rem;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: #f3f7ff;
+}
+
+.wavefront-explain p {
+  margin: 0.2rem 0;
+  font-size: clamp(1.05rem, 1.9vw, 1.22rem);
+}
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>Wave Superposition Interactive Lab</h1>
+    <p class="subtitle">A-Level Physics: phase difference, superposition and interference</p>
+  </header>
+
+  <main class="container">
+    <section class="panel principle-panel">
+      <h2>Core Principle</h2>
+      <p>
+        When two waves meet, the resultant displacement at each point is the sum of the displacements caused by each wave.
+      </p>
+      <p class="cn-text">
+        当两个波相遇时，每一点的合位移等于两个波在该点位移的代数和。
+      </p>
+      <p class="equation">y<sub>resultant</sub> = y<sub>1</sub> + y<sub>2</sub></p>
+      <div class="colour-legend" aria-label="Wave colour legend">
+        <h3>Colour legend / 颜色图例</h3>
+        <div class="legend-items">
+          <span><i class="legend-swatch wave1"></i>Wave 1 / 波 1</span>
+          <span><i class="legend-swatch wave2"></i>Wave 2 / 波 2</span>
+          <span><i class="legend-swatch resultant"></i>Resultant wave / 合成波</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Two Pulse Superposition</h2>
+      <canvas id="pulseCanvas" width="1100" height="360" aria-label="Pulse superposition animation"></canvas>
+      <aside class="observe-box">
+        <h3>What to observe</h3>
+        <p>Watch how the pulses add point-by-point when they overlap, then continue unchanged after meeting.</p>
+        <p class="cn-text">观察两个脉冲在重叠时如何逐点相加，以及相遇后如何保持原形继续传播。</p>
+      </aside>
+      <div class="controls-grid">
+        <label>Amplitude 1: <span id="amp1Value">70</span>
+          <input id="amp1" type="range" min="20" max="120" value="70" />
+        </label>
+        <label>Amplitude 2: <span id="amp2Value">70</span>
+          <input id="amp2" type="range" min="20" max="120" value="70" />
+        </label>
+        <label>Pulse width: <span id="widthValue">70</span>
+          <input id="pulseWidth" type="range" min="30" max="180" value="70" />
+        </label>
+        <label>Speed: <span id="speedValue">1.1</span>
+          <input id="speed" type="range" min="0.3" max="2.4" value="1.1" step="0.1" />
+        </label>
+        <label>Separation: <span id="separationValue">700</span>
+          <input id="separation" type="range" min="320" max="950" value="700" />
+        </label>
+      </div>
+      <div class="button-row">
+        <button id="pulsePlayPause">Pause</button>
+        <button id="pulseReset">Reset</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Continuous Wave Phase</h2>
+      <canvas id="phaseCanvas" width="1100" height="360" aria-label="Continuous wave phase animation"></canvas>
+      <aside class="observe-box">
+        <h3>What to observe</h3>
+        <p>Change the phase difference and compare constructive, partial and destructive interference.</p>
+        <p class="cn-text">改变相位差，比较相长干涉、部分干涉和相消干涉。</p>
+      </aside>
+      <div class="phase-controls-row">
+        <div class="phase-control-box">
+          <label for="phase" class="phase-control-title">Phase difference</label>
+          <p class="phase-readout">Phase difference: <span id="phaseDeg">0</span>° (<span id="phaseRad">0.00</span> rad)</p>
+          <input id="phase" class="long-touch-slider" type="range" min="0" max="360" value="0" />
+        </div>
+        <div class="phase-control-box speed-box">
+          <label for="animationSpeed" class="phase-control-title">Animation speed</label>
+          <p class="phase-readout">Animation speed factor: <span id="animationSpeedValue">0.20</span></p>
+          <input id="animationSpeed" class="long-touch-slider" type="range" min="0" max="1.6" value="0.2" step="0.01" aria-label="Animation speed" />
+        </div>
+      </div>
+      <p id="interferenceLabel" class="interference-label">Interference type: Constructive interference (in phase)</p>
+      <p class="cn-text strong-note">
+        只有当两列波振幅相等且相位差恰好为 180° 时，才会出现完全相消。
+      </p>
+    </section>
+
+    <section class="panel wavefront-panel">
+      <h2>Wavefronts and Rays</h2>
+      <div class="wavefront-diagram-grid">
+        <canvas id="wavefrontCanvas" width="1100" height="340" aria-label="Animated wavefronts and rays"></canvas>
+        <canvas id="linkedWaveCanvas" width="1100" height="190" aria-label="Linked sinusoidal wave view"></canvas>
+      </div>
+      <div class="controls-grid wavefront-controls">
+        <label>Animation speed: <span id="wavefrontSpeedValue">0.60</span>
+          <input id="wavefrontSpeed" class="long-touch-slider" type="range" min="0" max="1.5" step="0.01" value="0.6" />
+        </label>
+
+      </div>
+      <div class="button-row">
+        <button id="wavefrontPlayPause">Pause</button>
+        <button id="wavefrontReset">Reset</button>
+      </div>
+      <p class="representation-note">Same wave, two views / 同一个波的两种视角</p>
+      <div class="wavefront-explain">
+        <p>Wavefronts are lines joining points in the same phase. The top view shows wavefronts moving forward; the side view shows the same wave as crests and troughs.</p>
+        <p class="cn-text">波前连接所有处于同一相位的点。上方是波前向前传播的俯视图；下方是同一个波从侧面看到的波峰和波谷。</p>
+      </div>
+    </section>
+
+    <section class="panel exam-panel">
+      <h2>Exam Language (A-Level style)</h2>
+      <ul>
+        <li>Superposition occurs when waves meet and the resultant displacement is the vector sum of the individual displacements.</li>
+        <li class="cn-text">当波相遇时会发生叠加，合位移等于各波位移的矢量和。</li>
+        <li>Constructive interference occurs when waves meet in phase, producing a larger amplitude resultant wave.</li>
+        <li class="cn-text">同相位相遇会产生相长干涉，合成波振幅更大。</li>
+        <li>Destructive interference occurs when waves meet in antiphase, producing a smaller amplitude resultant wave.</li>
+        <li class="cn-text">反相位相遇会产生相消干涉，合成波振幅减小。</li>
+      </ul>
+      <p class="strong-note">
+        Complete cancellation only occurs when the two waves have equal amplitude and are exactly 180° out of phase.
+      </p>
+      <p class="cn-text strong-note">只有当两列波振幅相等且相位差恰好为 180° 时，才会完全相消。</p>
+    </section>
+  </main>
+
+  <script>
+const TAU = Math.PI * 2;
+
+const pulseCanvas = document.getElementById("pulseCanvas");
+const pulseCtx = pulseCanvas.getContext("2d");
+
+const phaseCanvas = document.getElementById("phaseCanvas");
+const phaseCtx = phaseCanvas.getContext("2d");
+
+const wavefrontCanvas = document.getElementById("wavefrontCanvas");
+const wavefrontCtx = wavefrontCanvas.getContext("2d");
+const linkedWaveCanvas = document.getElementById("linkedWaveCanvas");
+const linkedWaveCtx = linkedWaveCanvas.getContext("2d");
+
+const controls = {
+  amp1: document.getElementById("amp1"),
+  amp2: document.getElementById("amp2"),
+  width: document.getElementById("pulseWidth"),
+  speed: document.getElementById("speed"),
+  separation: document.getElementById("separation"),
+  phase: document.getElementById("phase"),
+  animationSpeed: document.getElementById("animationSpeed"),
+  wavefrontSpeed: document.getElementById("wavefrontSpeed"),
+
+};
+
+const readouts = {
+  amp1: document.getElementById("amp1Value"),
+  amp2: document.getElementById("amp2Value"),
+  width: document.getElementById("widthValue"),
+  speed: document.getElementById("speedValue"),
+  separation: document.getElementById("separationValue"),
+  phaseDeg: document.getElementById("phaseDeg"),
+  phaseRad: document.getElementById("phaseRad"),
+  animationSpeed: document.getElementById("animationSpeedValue"),
+  interferenceLabel: document.getElementById("interferenceLabel"),
+  wavefrontSpeed: document.getElementById("wavefrontSpeedValue"),
+
+};
+
+const pulsePlayPauseButton = document.getElementById("pulsePlayPause");
+const pulseResetButton = document.getElementById("pulseReset");
+const wavefrontPlayPauseButton = document.getElementById("wavefrontPlayPause");
+const wavefrontResetButton = document.getElementById("wavefrontReset");
+
+let pulseAnimationRunning = true;
+let pulseTime = 0;
+let smoothPhaseRad = 0;
+
+function gaussianPulse(x, center, width, amplitude) {
+  const distance = (x - center) / width;
+  return amplitude * Math.exp(-(distance * distance));
+}
+
+function drawAxis(ctx, width, height, label) {
+  const midY = height / 2;
+  ctx.save();
+  ctx.strokeStyle = "#707d93";
+  ctx.lineWidth = 1.5;
+
+  ctx.beginPath();
+  ctx.moveTo(0, midY);
+  ctx.lineTo(width, midY);
+  ctx.stroke();
+
+  ctx.fillStyle = "#344766";
+  ctx.font = "16px Segoe UI";
+  ctx.fillText("0 displacement", 10, midY - 8);
+  ctx.fillText(label, width - 170, 24);
+  ctx.restore();
+}
+
+function drawWaveLine(ctx, getY, color, lineWidth = 2.5) {
+  const width = ctx.canvas.width;
+  const height = ctx.canvas.height;
+  const midY = height / 2;
+
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.beginPath();
+
+  for (let x = 0; x <= width; x += 2) {
+    const y = midY - getY(x);
+    if (x === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+  }
+
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawLegend(ctx) {
+  const items = [
+    ["Wave 1", "#0068a8"],
+    ["Wave 2", "#c83e0e"],
+    ["Resultant", "#117a2f"],
+  ];
+
+  ctx.save();
+  ctx.font = "18px Segoe UI";
+  let x = 20;
+  const y = 28;
+
+  items.forEach(([text, color]) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y - 12, 24, 8);
+    ctx.fillStyle = "#1f2a3d";
+    ctx.fillText(text, x + 30, y);
+    x += 180;
+  });
+
+  ctx.restore();
+}
+
+function drawPulseScene() {
+  const width = pulseCanvas.width;
+  const height = pulseCanvas.height;
+
+  const amp1 = Number(controls.amp1.value);
+  const amp2 = Number(controls.amp2.value);
+  const pulseWidth = Number(controls.width.value);
+  const speed = Number(controls.speed.value);
+  const separation = Number(controls.separation.value);
+
+  const centerLeftStart = width / 2 - separation / 2;
+  const centerRightStart = width / 2 + separation / 2;
+
+  const center1 = centerLeftStart + pulseTime * speed;
+  const center2 = centerRightStart - pulseTime * speed;
+
+  pulseCtx.clearRect(0, 0, width, height);
+
+  drawAxis(pulseCtx, width, height, "Two pulse superposition");
+  drawLegend(pulseCtx);
+
+  drawWaveLine(pulseCtx, (x) => gaussianPulse(x, center1, pulseWidth, amp1), "#0068a8");
+  drawWaveLine(pulseCtx, (x) => gaussianPulse(x, center2, pulseWidth, amp2), "#c83e0e");
+  drawWaveLine(
+    pulseCtx,
+    (x) => gaussianPulse(x, center1, pulseWidth, amp1) + gaussianPulse(x, center2, pulseWidth, amp2),
+    "#117a2f",
+    3.5
+  );
+
+  pulseCtx.fillStyle = "#344766";
+  pulseCtx.font = "17px Segoe UI";
+  pulseCtx.fillText("Resultant calculated at each point: y = y₁ + y₂", 18, height - 16);
+
+  const centerDistance = Math.abs(center2 - center1);
+  let overlapLabel = "before overlap / 重叠前";
+  if (centerDistance < pulseWidth * 0.6) {
+    overlapLabel = "during overlap / 重叠中";
+  } else if (center1 > width / 2 + separation / 2) {
+    overlapLabel = "after overlap / 重叠后";
+  }
+  pulseCtx.fillStyle = "#173f97";
+  pulseCtx.font = "bold 22px Segoe UI";
+  pulseCtx.fillText(overlapLabel, width - 320, height - 20);
+}
+
+function updatePhaseReadout() {
+  const phaseDeg = Number(controls.phase.value);
+  const phaseRad = (phaseDeg * Math.PI) / 180;
+
+  readouts.phaseDeg.textContent = String(phaseDeg);
+  readouts.phaseRad.textContent = phaseRad.toFixed(2);
+
+  const wrapped = ((phaseDeg % 360) + 360) % 360;
+
+  if (wrapped === 0) {
+    readouts.interferenceLabel.textContent = "Interference type: Constructive interference (in phase)";
+  } else if (wrapped === 180) {
+    readouts.interferenceLabel.textContent = "Interference type: Destructive interference (antiphase). Complete cancellation requires equal amplitudes.";
+  } else {
+    readouts.interferenceLabel.textContent = "Interference type: Partial interference (not fully constructive or destructive)";
+  }
+}
+
+function updateAnimationSpeedReadout() {
+  const speedValue = Number(controls.animationSpeed.value);
+  readouts.animationSpeed.textContent = speedValue.toFixed(2);
+}
+
+function drawPhaseScene() {
+  const width = phaseCanvas.width;
+  const height = phaseCanvas.height;
+  const midY = height / 2;
+
+  phaseCtx.clearRect(0, 0, width, height);
+  drawAxis(phaseCtx, width, height, "Continuous waves");
+  drawLegend(phaseCtx);
+
+  const targetPhaseRad = (Number(controls.phase.value) * Math.PI) / 180;
+  smoothPhaseRad += (targetPhaseRad - smoothPhaseRad) * 0.08;
+
+  const amplitude = 58;
+  const wavelength = 220;
+  const angularWaveNumber = TAU / wavelength;
+  const speedFactor = Number(controls.animationSpeed.value);
+  const baseAngularFrequency = 0.001;
+  const maxAngularFrequency = 0.055;
+  const angularFrequency = baseAngularFrequency + (Math.pow(speedFactor / 1.6, 1.8) * (maxAngularFrequency - baseAngularFrequency));
+  const animationTime = speedFactor === 0 ? 0 : performance.now();
+
+  drawWaveLine(
+    phaseCtx,
+    (x) => amplitude * Math.sin(angularWaveNumber * x - angularFrequency * animationTime),
+    "#0068a8"
+  );
+
+  drawWaveLine(
+    phaseCtx,
+    (x) => amplitude * Math.sin(angularWaveNumber * x - angularFrequency * animationTime + smoothPhaseRad),
+    "#c83e0e"
+  );
+
+  drawWaveLine(
+    phaseCtx,
+    (x) => {
+      const y1 = amplitude * Math.sin(angularWaveNumber * x - angularFrequency * animationTime);
+      const y2 = amplitude * Math.sin(angularWaveNumber * x - angularFrequency * animationTime + smoothPhaseRad);
+      return y1 + y2;
+    },
+    "#117a2f",
+    3.3
+  );
+
+  phaseCtx.fillStyle = "#344766";
+  phaseCtx.font = "17px Segoe UI";
+  phaseCtx.fillText("Adjust phase difference to compare constructive and destructive interference.", 18, midY + 145);
+}
+
+let wavefrontTravelX = 0;
+let wavefrontRunning = true;
+let lastFrameTime = performance.now();
+
+function drawArrow(ctx, sx, sy, ex, ey, color) {
+  const head = 14;
+  const angle = Math.atan2(ey - sy, ex - sx);
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.lineTo(ex, ey);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(ex, ey);
+  ctx.lineTo(ex - head * Math.cos(angle - Math.PI / 7), ey - head * Math.sin(angle - Math.PI / 7));
+  ctx.lineTo(ex - head * Math.cos(angle + Math.PI / 7), ey - head * Math.sin(angle + Math.PI / 7));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawWavefrontScene() {
+  const width = wavefrontCanvas.width;
+  const height = wavefrontCanvas.height;
+  const spacing = 90;
+  const travelSpan = width + spacing * 2;
+  const highlightX = ((wavefrontTravelX % travelSpan) + travelSpan) % travelSpan - spacing;
+
+  wavefrontCtx.clearRect(0, 0, width, height);
+
+  wavefrontCtx.fillStyle = '#1f2a3d';
+  wavefrontCtx.font = 'bold 30px Segoe UI';
+  wavefrontCtx.fillText('Top view / 俯视图', 26, 40);
+
+  for (let x = highlightX - spacing * 20; x <= width + spacing * 20; x += spacing) {
+    const isHighlight = Math.abs(x - highlightX) < 0.001;
+    wavefrontCtx.strokeStyle = isHighlight ? '#9b2fd8' : '#5c79c3';
+    wavefrontCtx.lineWidth = isHighlight ? 6 : 3;
+    wavefrontCtx.beginPath();
+    wavefrontCtx.moveTo(x, 56);
+    wavefrontCtx.lineTo(x, height - 48);
+    wavefrontCtx.stroke();
+  }
+
+  wavefrontCtx.setLineDash([7, 8]);
+  wavefrontCtx.strokeStyle = '#9b2fd8';
+  wavefrontCtx.lineWidth = 3;
+  wavefrontCtx.beginPath();
+  wavefrontCtx.moveTo(highlightX, height - 48);
+  wavefrontCtx.lineTo(highlightX, height);
+  wavefrontCtx.stroke();
+  wavefrontCtx.setLineDash([]);
+
+  wavefrontCtx.fillStyle = '#1f2a3d';
+  wavefrontCtx.font = 'bold 22px Segoe UI';
+  wavefrontCtx.fillText('Wavefront / 波前', width - 290, 84);
+  wavefrontCtx.strokeStyle = '#1f2a3d';
+  wavefrontCtx.lineWidth = 2;
+  wavefrontCtx.beginPath();
+  wavefrontCtx.moveTo(width - 210, 92);
+  wavefrontCtx.lineTo(width - 210, 132);
+  wavefrontCtx.lineTo(width - 245, 132);
+  wavefrontCtx.stroke();
+
+  drawArrow(wavefrontCtx, 78, height - 22, 330, height - 22, '#cc3f0c');
+  wavefrontCtx.fillStyle = '#1f2a3d';
+  wavefrontCtx.font = 'bold 22px Segoe UI';
+  wavefrontCtx.fillText('Ray direction / 传播方向', 346, height - 14);
+
+  drawLinkedSine(highlightX, spacing);
+}
+
+function drawLinkedSine(highlightX, spacing) {
+  const width = linkedWaveCanvas.width;
+  const height = linkedWaveCanvas.height;
+  const midY = height / 2;
+
+  linkedWaveCtx.clearRect(0, 0, width, height);
+  linkedWaveCtx.strokeStyle = '#707d93';
+  linkedWaveCtx.lineWidth = 2;
+  linkedWaveCtx.beginPath();
+  linkedWaveCtx.moveTo(0, midY);
+  linkedWaveCtx.lineTo(width, midY);
+  linkedWaveCtx.stroke();
+
+  linkedWaveCtx.fillStyle = '#1f2a3d';
+  linkedWaveCtx.font = 'bold 28px Segoe UI';
+  linkedWaveCtx.fillText('Side view / 侧视图', 26, 38);
+  linkedWaveCtx.font = 'bold 22px Segoe UI';
+  linkedWaveCtx.fillText('Crest / 波峰', width - 250, 40);
+
+  const amp = 42;
+  const k = TAU / spacing;
+
+  linkedWaveCtx.strokeStyle = '#127a8a';
+  linkedWaveCtx.lineWidth = 4;
+  linkedWaveCtx.beginPath();
+  for (let x = 0; x <= width; x += 2) {
+    const y = midY - amp * Math.cos(k * (x - highlightX));
+    if (x === 0) linkedWaveCtx.moveTo(x, y); else linkedWaveCtx.lineTo(x, y);
+  }
+  linkedWaveCtx.stroke();
+
+  const crestX = highlightX;
+  const crestY = midY - amp;
+
+  linkedWaveCtx.strokeStyle = '#1f2a3d';
+  linkedWaveCtx.lineWidth = 2;
+  linkedWaveCtx.beginPath();
+  linkedWaveCtx.moveTo(width - 170, 46);
+  linkedWaveCtx.lineTo(width - 130, 68);
+  linkedWaveCtx.stroke();
+  linkedWaveCtx.fillStyle = '#9b2fd8';
+  linkedWaveCtx.beginPath();
+  linkedWaveCtx.arc(crestX, crestY, 9, 0, TAU);
+  linkedWaveCtx.fill();
+
+  linkedWaveCtx.setLineDash([7, 8]);
+  linkedWaveCtx.strokeStyle = '#9b2fd8';
+  linkedWaveCtx.lineWidth = 3;
+  linkedWaveCtx.beginPath();
+  linkedWaveCtx.moveTo(crestX, 0);
+  linkedWaveCtx.lineTo(crestX, crestY - 10);
+  linkedWaveCtx.stroke();
+  linkedWaveCtx.setLineDash([]);
+
+}
+
+
+function updateWavefrontReadouts() {
+  readouts.wavefrontSpeed.textContent = Number(controls.wavefrontSpeed.value).toFixed(2);
+}
+
+function updateControlReadouts() {
+  readouts.amp1.textContent = controls.amp1.value;
+  readouts.amp2.textContent = controls.amp2.value;
+  readouts.width.textContent = controls.width.value;
+  readouts.speed.textContent = Number(controls.speed.value).toFixed(1);
+  readouts.separation.textContent = controls.separation.value;
+}
+
+function animate(currentTime = performance.now()) {
+  const dt = Math.min(40, currentTime - lastFrameTime);
+  lastFrameTime = currentTime;
+
+  if (pulseAnimationRunning) {
+    pulseTime += 0.35;
+  }
+
+  drawPulseScene();
+  drawPhaseScene();
+  if (wavefrontRunning && Number(controls.wavefrontSpeed.value) > 0) {
+    wavefrontTravelX += Number(controls.wavefrontSpeed.value) * dt * 0.18;
+  }
+  drawWavefrontScene();
+
+  requestAnimationFrame(animate);
+}
+
+pulsePlayPauseButton.addEventListener("click", () => {
+  pulseAnimationRunning = !pulseAnimationRunning;
+  pulsePlayPauseButton.textContent = pulseAnimationRunning ? "Pause" : "Play";
+});
+
+pulseResetButton.addEventListener("click", () => {
+  pulseTime = 0;
+  pulseAnimationRunning = true;
+  pulsePlayPauseButton.textContent = "Pause";
+});
+
+[controls.amp1, controls.amp2, controls.width, controls.speed, controls.separation].forEach((slider) => {
+  slider.addEventListener("input", updateControlReadouts);
+});
+
+controls.phase.addEventListener("input", updatePhaseReadout);
+controls.animationSpeed.addEventListener("input", updateAnimationSpeedReadout);
+
+updateControlReadouts();
+updatePhaseReadout();
+updateAnimationSpeedReadout();
+animate();
+
+controls.wavefrontSpeed.addEventListener("input", updateWavefrontReadouts);
+
+wavefrontPlayPauseButton.addEventListener("click", () => {
+  wavefrontRunning = !wavefrontRunning;
+  wavefrontPlayPauseButton.textContent = wavefrontRunning ? "Pause" : "Play";
+});
+
+wavefrontResetButton.addEventListener("click", () => {
+  wavefrontTravelX = 0;
+  controls.wavefrontSpeed.value = "0.6";
+  wavefrontRunning = true;
+  wavefrontPlayPauseButton.textContent = "Pause";
+  updateWavefrontReadouts();
+});
+
+updateWavefrontReadouts();
+  </script>
+</body>
+</html>
