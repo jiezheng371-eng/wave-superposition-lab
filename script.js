@@ -235,6 +235,7 @@ function drawPhaseScene() {
 
 let wavefrontPhaseOffset = 0;
 let wavefrontRunning = true;
+let lastFrameTime = performance.now();
 
 function drawArrow(ctx, sx, sy, ex, ey, color) {
   const head = 14;
@@ -265,54 +266,38 @@ function drawWavefrontScene() {
 
   wavefrontCtx.clearRect(0, 0, width, height);
 
+  wavefrontCtx.fillStyle = '#1f2a3d';
+  wavefrontCtx.font = 'bold 30px Segoe UI';
+  wavefrontCtx.fillText('Top view / 俯视图', 26, 40);
+
   for (let x = highlightX - spacing * 20; x <= width + spacing * 20; x += spacing) {
     const isHighlight = Math.abs(x - highlightX) < 0.001;
     wavefrontCtx.strokeStyle = isHighlight ? '#9b2fd8' : '#5c79c3';
-    wavefrontCtx.lineWidth = isHighlight ? 5 : 3;
+    wavefrontCtx.lineWidth = isHighlight ? 6 : 3;
     wavefrontCtx.beginPath();
-    wavefrontCtx.moveTo(x, 36);
-    wavefrontCtx.lineTo(x, height - 46);
+    wavefrontCtx.moveTo(x, 56);
+    wavefrontCtx.lineTo(x, height - 48);
     wavefrontCtx.stroke();
   }
 
-  wavefrontCtx.setLineDash([8, 7]);
+  wavefrontCtx.setLineDash([7, 8]);
   wavefrontCtx.strokeStyle = '#9b2fd8';
   wavefrontCtx.lineWidth = 3;
   wavefrontCtx.beginPath();
-  wavefrontCtx.moveTo(highlightX, height - 44);
+  wavefrontCtx.moveTo(highlightX, height - 48);
   wavefrontCtx.lineTo(highlightX, height);
   wavefrontCtx.stroke();
   wavefrontCtx.setLineDash([]);
 
-  for (let y = 82; y <= 238; y += 52) {
-    wavefrontCtx.fillStyle = '#9b2fd8';
-    wavefrontCtx.beginPath();
-    wavefrontCtx.arc(highlightX, y, 7, 0, TAU);
-    wavefrontCtx.fill();
-  }
+  wavefrontCtx.fillStyle = '#9b2fd8';
+  wavefrontCtx.font = 'bold 22px Segoe UI';
+  wavefrontCtx.fillText('Wavefront / 波前', Math.min(highlightX + 16, width - 230), 82);
+  wavefrontCtx.fillText('same phase / 同一相位', Math.min(highlightX + 16, width - 280), 112);
 
+  drawArrow(wavefrontCtx, 78, height - 22, 330, height - 22, '#cc3f0c');
   wavefrontCtx.fillStyle = '#1f2a3d';
   wavefrontCtx.font = 'bold 22px Segoe UI';
-  wavefrontCtx.fillText('same phase points / 同相位点', Math.min(highlightX + 18, width - 360), 84);
-  wavefrontCtx.font = '20px Segoe UI';
-  wavefrontCtx.fillText('All points on this wavefront are in the same phase.', 30, 296);
-  wavefrontCtx.fillText('这条波前上的所有点处于同一相位。', 30, 324);
-
-  drawArrow(wavefrontCtx, 70, 34, 370, 34, '#cc3f0c');
-  wavefrontCtx.fillStyle = '#1f2a3d';
-  wavefrontCtx.font = 'bold 20px Segoe UI';
-  wavefrontCtx.fillText('Ray direction / wave travel direction', 390, 40);
-  wavefrontCtx.fillText('射线方向 / 波传播方向', 390, 66);
-  wavefrontCtx.fillText('ray ⟂ wavefront / 射线 ⟂ 波前', 720, 94);
-
-  const lambdaStart = highlightX + spacing;
-  const lambdaEnd = highlightX + spacing * 2;
-  if (lambdaEnd < width - 50) {
-    drawArrow(wavefrontCtx, lambdaStart, height - 20, lambdaEnd, height - 20, '#1f2a3d');
-    drawArrow(wavefrontCtx, lambdaEnd, height - 20, lambdaStart, height - 20, '#1f2a3d');
-    wavefrontCtx.font = 'bold 20px Segoe UI';
-    wavefrontCtx.fillText('one wavelength λ / 一个波长 λ', lambdaStart + 6, height - 26);
-  }
+  wavefrontCtx.fillText('Ray direction / 传播方向', 346, height - 14);
 
   drawLinkedSine(highlightX, spacing);
 }
@@ -330,9 +315,12 @@ function drawLinkedSine(highlightX, spacing) {
   linkedWaveCtx.lineTo(width, midY);
   linkedWaveCtx.stroke();
 
+  linkedWaveCtx.fillStyle = '#1f2a3d';
+  linkedWaveCtx.font = 'bold 28px Segoe UI';
+  linkedWaveCtx.fillText('Side view / 侧视图', 26, 38);
+
   const amp = 42;
-  const wavelength = spacing;
-  const k = TAU / wavelength;
+  const k = TAU / spacing;
   const phase = (highlightX / spacing) * TAU;
 
   linkedWaveCtx.strokeStyle = '#127a8a';
@@ -348,10 +336,10 @@ function drawLinkedSine(highlightX, spacing) {
   const crestY = midY - amp;
   linkedWaveCtx.fillStyle = '#9b2fd8';
   linkedWaveCtx.beginPath();
-  linkedWaveCtx.arc(crestX, crestY, 8, 0, TAU);
+  linkedWaveCtx.arc(crestX, crestY, 9, 0, TAU);
   linkedWaveCtx.fill();
 
-  linkedWaveCtx.setLineDash([8, 7]);
+  linkedWaveCtx.setLineDash([7, 8]);
   linkedWaveCtx.strokeStyle = '#9b2fd8';
   linkedWaveCtx.lineWidth = 3;
   linkedWaveCtx.beginPath();
@@ -360,10 +348,9 @@ function drawLinkedSine(highlightX, spacing) {
   linkedWaveCtx.stroke();
   linkedWaveCtx.setLineDash([]);
 
-  linkedWaveCtx.fillStyle = '#1f2a3d';
-  linkedWaveCtx.font = 'bold 20px Segoe UI';
-  linkedWaveCtx.fillText('corresponding crest / 对应波峰', Math.min(crestX + 16, width - 300), crestY - 16);
-  linkedWaveCtx.fillText('same phase shown as a crest / 同一相位在正弦图中显示为波峰', 26, 30);
+  linkedWaveCtx.fillStyle = '#9b2fd8';
+  linkedWaveCtx.font = 'bold 22px Segoe UI';
+  linkedWaveCtx.fillText('Crest / 波峰', Math.min(crestX + 16, width - 170), crestY - 14);
 }
 
 function updateWavefrontReadouts() {
@@ -378,7 +365,10 @@ function updateControlReadouts() {
   readouts.separation.textContent = controls.separation.value;
 }
 
-function animate() {
+function animate(currentTime = performance.now()) {
+  const dt = Math.min(40, currentTime - lastFrameTime);
+  lastFrameTime = currentTime;
+
   if (pulseAnimationRunning) {
     pulseTime += 0.35;
   }
@@ -386,7 +376,7 @@ function animate() {
   drawPulseScene();
   drawPhaseScene();
   if (wavefrontRunning && Number(controls.wavefrontSpeed.value) > 0) {
-    wavefrontPhaseOffset += Number(controls.wavefrontSpeed.value) * 0.7;
+    wavefrontPhaseOffset += Number(controls.wavefrontSpeed.value) * dt * 0.03;
   }
   drawWavefrontScene();
 
