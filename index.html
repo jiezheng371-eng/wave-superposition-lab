@@ -75,16 +75,12 @@
         <div class="phase-control-box">
           <label for="phase" class="phase-control-title">Phase difference</label>
           <p class="phase-readout">Phase difference: <span id="phaseDeg">0</span>° (<span id="phaseRad">0.00</span> rad)</p>
-          <input id="phase" type="range" min="0" max="360" value="0" />
+          <input id="phase" class="long-touch-slider" type="range" min="0" max="360" value="0" />
         </div>
         <div class="phase-control-box speed-box">
           <label for="animationSpeed" class="phase-control-title">Animation speed</label>
-          <p class="phase-readout">Current speed: <span id="animationSpeedValue">Slow</span></p>
-          <select id="animationSpeed" aria-label="Animation speed">
-            <option value="slow" selected>Slow</option>
-            <option value="medium">Medium</option>
-            <option value="fast">Fast</option>
-          </select>
+          <p class="phase-readout">Animation speed factor: <span id="animationSpeedValue">0.20</span></p>
+          <input id="animationSpeed" class="long-touch-slider" type="range" min="0" max="1.6" value="0.2" step="0.01" aria-label="Animation speed" />
         </div>
       </div>
       <p id="interferenceLabel" class="interference-label">Interference type: Constructive interference (in phase)</p>

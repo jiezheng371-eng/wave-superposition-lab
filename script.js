@@ -34,12 +34,6 @@ const readouts = {
 const pulsePlayPauseButton = document.getElementById("pulsePlayPause");
 const pulseResetButton = document.getElementById("pulseReset");
 
-const phaseSpeedMap = {
-  slow: 0.013,
-  medium: 0.024,
-  fast: 0.04,
-};
-
 let pulseAnimationRunning = true;
 let pulseTime = 0;
 let smoothPhaseRad = 0;
@@ -178,8 +172,8 @@ function updatePhaseReadout() {
 }
 
 function updateAnimationSpeedReadout() {
-  const label = controls.animationSpeed.options[controls.animationSpeed.selectedIndex].text;
-  readouts.animationSpeed.textContent = label;
+  const speedValue = Number(controls.animationSpeed.value);
+  readouts.animationSpeed.textContent = speedValue.toFixed(2);
 }
 
 function drawPhaseScene() {
@@ -197,27 +191,29 @@ function drawPhaseScene() {
   const amplitude = 58;
   const wavelength = 220;
   const angularWaveNumber = TAU / wavelength;
-  const selectedSpeed = controls.animationSpeed.value;
-  const angularFrequency = phaseSpeedMap[selectedSpeed] || phaseSpeedMap.slow;
-  const t = performance.now();
+  const speedFactor = Number(controls.animationSpeed.value);
+  const baseAngularFrequency = 0.001;
+  const maxAngularFrequency = 0.055;
+  const angularFrequency = baseAngularFrequency + (Math.pow(speedFactor / 1.6, 1.8) * (maxAngularFrequency - baseAngularFrequency));
+  const animationTime = speedFactor === 0 ? 0 : performance.now();
 
   drawWaveLine(
     phaseCtx,
-    (x) => amplitude * Math.sin(angularWaveNumber * x - angularFrequency * t),
+    (x) => amplitude * Math.sin(angularWaveNumber * x - angularFrequency * animationTime),
     "#0068a8"
   );
 
   drawWaveLine(
     phaseCtx,
-    (x) => amplitude * Math.sin(angularWaveNumber * x - angularFrequency * t + smoothPhaseRad),
+    (x) => amplitude * Math.sin(angularWaveNumber * x - angularFrequency * animationTime + smoothPhaseRad),
     "#c83e0e"
   );
 
   drawWaveLine(
     phaseCtx,
     (x) => {
-      const y1 = amplitude * Math.sin(angularWaveNumber * x - angularFrequency * t);
-      const y2 = amplitude * Math.sin(angularWaveNumber * x - angularFrequency * t + smoothPhaseRad);
+      const y1 = amplitude * Math.sin(angularWaveNumber * x - angularFrequency * animationTime);
+      const y2 = amplitude * Math.sin(angularWaveNumber * x - angularFrequency * animationTime + smoothPhaseRad);
       return y1 + y2;
     },
     "#117a2f",
@@ -311,7 +307,7 @@ pulseResetButton.addEventListener("click", () => {
 });
 
 controls.phase.addEventListener("input", updatePhaseReadout);
-controls.animationSpeed.addEventListener("change", updateAnimationSpeedReadout);
+controls.animationSpeed.addEventListener("input", updateAnimationSpeedReadout);
 
 updateControlReadouts();
 updatePhaseReadout();
