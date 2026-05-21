@@ -233,7 +233,7 @@ function drawPhaseScene() {
   phaseCtx.fillText("Adjust phase difference to compare constructive and destructive interference.", 18, midY + 145);
 }
 
-let wavefrontPhaseOffset = 0;
+let wavefrontTravelX = 0;
 let wavefrontRunning = true;
 let lastFrameTime = performance.now();
 
@@ -261,8 +261,8 @@ function drawWavefrontScene() {
   const width = wavefrontCanvas.width;
   const height = wavefrontCanvas.height;
   const spacing = 90;
-  const offset = ((wavefrontPhaseOffset % spacing) + spacing) % spacing;
-  const highlightX = offset;
+  const travelSpan = width + spacing * 2;
+  const highlightX = ((wavefrontTravelX % travelSpan) + travelSpan) % travelSpan - spacing;
 
   wavefrontCtx.clearRect(0, 0, width, height);
 
@@ -289,10 +289,9 @@ function drawWavefrontScene() {
   wavefrontCtx.stroke();
   wavefrontCtx.setLineDash([]);
 
-  wavefrontCtx.fillStyle = '#9b2fd8';
+  wavefrontCtx.fillStyle = '#1f2a3d';
   wavefrontCtx.font = 'bold 22px Segoe UI';
-  wavefrontCtx.fillText('Wavefront / 波前', Math.min(highlightX + 16, width - 230), 82);
-  wavefrontCtx.fillText('same phase / 同一相位', Math.min(highlightX + 16, width - 280), 112);
+  wavefrontCtx.fillText('Wavefront / 波前', 26, 74);
 
   drawArrow(wavefrontCtx, 78, height - 22, 330, height - 22, '#cc3f0c');
   wavefrontCtx.fillStyle = '#1f2a3d';
@@ -318,16 +317,17 @@ function drawLinkedSine(highlightX, spacing) {
   linkedWaveCtx.fillStyle = '#1f2a3d';
   linkedWaveCtx.font = 'bold 28px Segoe UI';
   linkedWaveCtx.fillText('Side view / 侧视图', 26, 38);
+  linkedWaveCtx.font = 'bold 22px Segoe UI';
+  linkedWaveCtx.fillText('Crest / 波峰', 26, 70);
 
   const amp = 42;
   const k = TAU / spacing;
-  const phase = (highlightX / spacing) * TAU;
 
   linkedWaveCtx.strokeStyle = '#127a8a';
   linkedWaveCtx.lineWidth = 4;
   linkedWaveCtx.beginPath();
   for (let x = 0; x <= width; x += 2) {
-    const y = midY - amp * Math.sin(k * x - phase);
+    const y = midY - amp * Math.cos(k * (x - highlightX));
     if (x === 0) linkedWaveCtx.moveTo(x, y); else linkedWaveCtx.lineTo(x, y);
   }
   linkedWaveCtx.stroke();
@@ -348,10 +348,8 @@ function drawLinkedSine(highlightX, spacing) {
   linkedWaveCtx.stroke();
   linkedWaveCtx.setLineDash([]);
 
-  linkedWaveCtx.fillStyle = '#9b2fd8';
-  linkedWaveCtx.font = 'bold 22px Segoe UI';
-  linkedWaveCtx.fillText('Crest / 波峰', Math.min(crestX + 16, width - 170), crestY - 14);
 }
+
 
 function updateWavefrontReadouts() {
   readouts.wavefrontSpeed.textContent = Number(controls.wavefrontSpeed.value).toFixed(2);
@@ -376,7 +374,7 @@ function animate(currentTime = performance.now()) {
   drawPulseScene();
   drawPhaseScene();
   if (wavefrontRunning && Number(controls.wavefrontSpeed.value) > 0) {
-    wavefrontPhaseOffset += Number(controls.wavefrontSpeed.value) * dt * 0.03;
+    wavefrontTravelX += Number(controls.wavefrontSpeed.value) * dt * 0.18;
   }
   drawWavefrontScene();
 
@@ -414,7 +412,7 @@ wavefrontPlayPauseButton.addEventListener("click", () => {
 });
 
 wavefrontResetButton.addEventListener("click", () => {
-  wavefrontPhaseOffset = 0;
+  wavefrontTravelX = 0;
   controls.wavefrontSpeed.value = "0.6";
   wavefrontRunning = true;
   wavefrontPlayPauseButton.textContent = "Pause";
