@@ -50,8 +50,8 @@
         <label>Pulse width: <span id="widthValue">70</span>
           <input id="pulseWidth" type="range" min="30" max="180" value="70" />
         </label>
-        <label>Speed: <span id="speedValue">2.5</span>
-          <input id="speed" type="range" min="0.5" max="6" value="2.5" step="0.1" />
+        <label>Speed: <span id="speedValue">1.1</span>
+          <input id="speed" type="range" min="0.3" max="2.4" value="1.1" step="0.1" />
         </label>
         <label>Separation: <span id="separationValue">700</span>
           <input id="separation" type="range" min="320" max="950" value="700" />
@@ -71,10 +71,21 @@
         <p>Change the phase difference and compare constructive, partial and destructive interference.</p>
         <p class="cn-text">改变相位差，比较相长干涉、部分干涉和相消干涉。</p>
       </aside>
-      <div class="controls-grid single-row">
-        <label>Phase difference: <span id="phaseDeg">0</span>° (<span id="phaseRad">0.00</span> rad)
+      <div class="phase-controls-row">
+        <div class="phase-control-box">
+          <label for="phase" class="phase-control-title">Phase difference</label>
+          <p class="phase-readout">Phase difference: <span id="phaseDeg">0</span>° (<span id="phaseRad">0.00</span> rad)</p>
           <input id="phase" type="range" min="0" max="360" value="0" />
-        </label>
+        </div>
+        <div class="phase-control-box speed-box">
+          <label for="animationSpeed" class="phase-control-title">Animation speed</label>
+          <p class="phase-readout">Current speed: <span id="animationSpeedValue">Slow</span></p>
+          <select id="animationSpeed" aria-label="Animation speed">
+            <option value="slow" selected>Slow</option>
+            <option value="medium">Medium</option>
+            <option value="fast">Fast</option>
+          </select>
+        </div>
       </div>
       <p id="interferenceLabel" class="interference-label">Interference type: Constructive interference (in phase)</p>
       <p class="cn-text strong-note">

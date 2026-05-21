@@ -16,6 +16,7 @@ const controls = {
   speed: document.getElementById("speed"),
   separation: document.getElementById("separation"),
   phase: document.getElementById("phase"),
+  animationSpeed: document.getElementById("animationSpeed"),
 };
 
 const readouts = {
@@ -26,14 +27,22 @@ const readouts = {
   separation: document.getElementById("separationValue"),
   phaseDeg: document.getElementById("phaseDeg"),
   phaseRad: document.getElementById("phaseRad"),
+  animationSpeed: document.getElementById("animationSpeedValue"),
   interferenceLabel: document.getElementById("interferenceLabel"),
 };
 
 const pulsePlayPauseButton = document.getElementById("pulsePlayPause");
 const pulseResetButton = document.getElementById("pulseReset");
 
+const phaseSpeedMap = {
+  slow: 0.013,
+  medium: 0.024,
+  fast: 0.04,
+};
+
 let pulseAnimationRunning = true;
 let pulseTime = 0;
+let smoothPhaseRad = 0;
 
 function gaussianPulse(x, center, width, amplitude) {
   const distance = (x - center) / width;
@@ -168,6 +177,11 @@ function updatePhaseReadout() {
   }
 }
 
+function updateAnimationSpeedReadout() {
+  const label = controls.animationSpeed.options[controls.animationSpeed.selectedIndex].text;
+  readouts.animationSpeed.textContent = label;
+}
+
 function drawPhaseScene() {
   const width = phaseCanvas.width;
   const height = phaseCanvas.height;
@@ -177,12 +191,14 @@ function drawPhaseScene() {
   drawAxis(phaseCtx, width, height, "Continuous waves");
   drawLegend(phaseCtx);
 
-  const phaseRad = (Number(controls.phase.value) * Math.PI) / 180;
+  const targetPhaseRad = (Number(controls.phase.value) * Math.PI) / 180;
+  smoothPhaseRad += (targetPhaseRad - smoothPhaseRad) * 0.08;
 
   const amplitude = 58;
   const wavelength = 220;
   const angularWaveNumber = TAU / wavelength;
-  const angularFrequency = 0.055;
+  const selectedSpeed = controls.animationSpeed.value;
+  const angularFrequency = phaseSpeedMap[selectedSpeed] || phaseSpeedMap.slow;
   const t = performance.now();
 
   drawWaveLine(
@@ -193,7 +209,7 @@ function drawPhaseScene() {
 
   drawWaveLine(
     phaseCtx,
-    (x) => amplitude * Math.sin(angularWaveNumber * x - angularFrequency * t + phaseRad),
+    (x) => amplitude * Math.sin(angularWaveNumber * x - angularFrequency * t + smoothPhaseRad),
     "#c83e0e"
   );
 
@@ -201,7 +217,7 @@ function drawPhaseScene() {
     phaseCtx,
     (x) => {
       const y1 = amplitude * Math.sin(angularWaveNumber * x - angularFrequency * t);
-      const y2 = amplitude * Math.sin(angularWaveNumber * x - angularFrequency * t + phaseRad);
+      const y2 = amplitude * Math.sin(angularWaveNumber * x - angularFrequency * t + smoothPhaseRad);
       return y1 + y2;
     },
     "#117a2f",
@@ -269,7 +285,7 @@ function updateControlReadouts() {
 
 function animate() {
   if (pulseAnimationRunning) {
-    pulseTime += 1;
+    pulseTime += 0.35;
   }
 
   drawPulseScene();
@@ -295,7 +311,9 @@ pulseResetButton.addEventListener("click", () => {
 });
 
 controls.phase.addEventListener("input", updatePhaseReadout);
+controls.animationSpeed.addEventListener("change", updateAnimationSpeedReadout);
 
 updateControlReadouts();
 updatePhaseReadout();
+updateAnimationSpeedReadout();
 animate();
