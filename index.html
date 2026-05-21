@@ -1,1 +1,81 @@
-<h1>Wave Superposition Lab</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wave Superposition Interactive Lab</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hero">
+    <h1>Wave Superposition Interactive Lab</h1>
+    <p class="subtitle">A-Level Physics: phase difference, superposition and interference</p>
+  </header>
+
+  <main class="container">
+    <section class="panel principle-panel">
+      <h2>Core Principle</h2>
+      <p>
+        When two waves meet, the resultant displacement at each point is the sum of the displacements caused by each wave.
+      </p>
+      <p class="equation">y<sub>resultant</sub> = y<sub>1</sub> + y<sub>2</sub></p>
+    </section>
+
+    <section class="panel">
+      <h2>Two Pulse Superposition</h2>
+      <canvas id="pulseCanvas" width="1100" height="360" aria-label="Pulse superposition animation"></canvas>
+      <div class="controls-grid">
+        <label>Amplitude 1: <span id="amp1Value">70</span>
+          <input id="amp1" type="range" min="20" max="120" value="70" />
+        </label>
+        <label>Amplitude 2: <span id="amp2Value">70</span>
+          <input id="amp2" type="range" min="20" max="120" value="70" />
+        </label>
+        <label>Pulse width: <span id="widthValue">70</span>
+          <input id="pulseWidth" type="range" min="30" max="180" value="70" />
+        </label>
+        <label>Speed: <span id="speedValue">2.5</span>
+          <input id="speed" type="range" min="0.5" max="6" value="2.5" step="0.1" />
+        </label>
+        <label>Separation: <span id="separationValue">700</span>
+          <input id="separation" type="range" min="320" max="950" value="700" />
+        </label>
+      </div>
+      <div class="button-row">
+        <button id="pulsePlayPause">Pause</button>
+        <button id="pulseReset">Reset</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Continuous Wave Phase</h2>
+      <canvas id="phaseCanvas" width="1100" height="360" aria-label="Continuous wave phase animation"></canvas>
+      <div class="controls-grid single-row">
+        <label>Phase difference: <span id="phaseDeg">0</span>° (<span id="phaseRad">0.00</span> rad)
+          <input id="phase" type="range" min="0" max="360" value="0" />
+        </label>
+      </div>
+      <p id="interferenceLabel" class="interference-label">Interference type: Constructive interference (in phase)</p>
+    </section>
+
+    <section class="panel">
+      <h2>Wavefronts and Rays</h2>
+      <canvas id="wavefrontCanvas" width="1100" height="300" aria-label="Wavefronts and rays"></canvas>
+      <p>
+        Wavefronts connect points that are in the same phase. Rays show the direction of wave travel and are perpendicular to the wavefronts.
+      </p>
+    </section>
+
+    <section class="panel exam-panel">
+      <h2>Exam Language (A-Level style)</h2>
+      <ul>
+        <li>Superposition occurs when waves meet and the resultant displacement is the vector sum of the individual displacements.</li>
+        <li>Constructive interference occurs when waves meet in phase, producing a larger amplitude resultant wave.</li>
+        <li>Destructive interference occurs when waves meet in antiphase, producing a smaller amplitude resultant wave.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
