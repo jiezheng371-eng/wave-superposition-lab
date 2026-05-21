@@ -137,6 +137,17 @@ function drawPulseScene() {
   pulseCtx.fillStyle = "#344766";
   pulseCtx.font = "17px Segoe UI";
   pulseCtx.fillText("Resultant calculated at each point: y = y₁ + y₂", 18, height - 16);
+
+  const centerDistance = Math.abs(center2 - center1);
+  let overlapLabel = "before overlap / 重叠前";
+  if (centerDistance < pulseWidth * 0.6) {
+    overlapLabel = "during overlap / 重叠中";
+  } else if (center1 > width / 2 + separation / 2) {
+    overlapLabel = "after overlap / 重叠后";
+  }
+  pulseCtx.fillStyle = "#173f97";
+  pulseCtx.font = "bold 22px Segoe UI";
+  pulseCtx.fillText(overlapLabel, width - 320, height - 20);
 }
 
 function updatePhaseReadout() {
@@ -151,7 +162,7 @@ function updatePhaseReadout() {
   if (wrapped === 0) {
     readouts.interferenceLabel.textContent = "Interference type: Constructive interference (in phase)";
   } else if (wrapped === 180) {
-    readouts.interferenceLabel.textContent = "Interference type: Destructive interference (antiphase)";
+    readouts.interferenceLabel.textContent = "Interference type: Destructive interference (antiphase). Complete cancellation requires equal amplitudes.";
   } else {
     readouts.interferenceLabel.textContent = "Interference type: Partial interference (not fully constructive or destructive)";
   }
