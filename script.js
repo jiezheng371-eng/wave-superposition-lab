@@ -291,7 +291,14 @@ function drawWavefrontScene() {
 
   wavefrontCtx.fillStyle = '#1f2a3d';
   wavefrontCtx.font = 'bold 22px Segoe UI';
-  wavefrontCtx.fillText('Wavefront / 波前', 26, 74);
+  wavefrontCtx.fillText('Wavefront / 波前', width - 290, 84);
+  wavefrontCtx.strokeStyle = '#1f2a3d';
+  wavefrontCtx.lineWidth = 2;
+  wavefrontCtx.beginPath();
+  wavefrontCtx.moveTo(width - 210, 92);
+  wavefrontCtx.lineTo(width - 210, 132);
+  wavefrontCtx.lineTo(width - 245, 132);
+  wavefrontCtx.stroke();
 
   drawArrow(wavefrontCtx, 78, height - 22, 330, height - 22, '#cc3f0c');
   wavefrontCtx.fillStyle = '#1f2a3d';
@@ -318,7 +325,7 @@ function drawLinkedSine(highlightX, spacing) {
   linkedWaveCtx.font = 'bold 28px Segoe UI';
   linkedWaveCtx.fillText('Side view / 侧视图', 26, 38);
   linkedWaveCtx.font = 'bold 22px Segoe UI';
-  linkedWaveCtx.fillText('Crest / 波峰', 26, 70);
+  linkedWaveCtx.fillText('Crest / 波峰', width - 250, 40);
 
   const amp = 42;
   const k = TAU / spacing;
@@ -334,6 +341,13 @@ function drawLinkedSine(highlightX, spacing) {
 
   const crestX = highlightX;
   const crestY = midY - amp;
+
+  linkedWaveCtx.strokeStyle = '#1f2a3d';
+  linkedWaveCtx.lineWidth = 2;
+  linkedWaveCtx.beginPath();
+  linkedWaveCtx.moveTo(width - 170, 46);
+  linkedWaveCtx.lineTo(width - 130, 68);
+  linkedWaveCtx.stroke();
   linkedWaveCtx.fillStyle = '#9b2fd8';
   linkedWaveCtx.beginPath();
   linkedWaveCtx.arc(crestX, crestY, 9, 0, TAU);
