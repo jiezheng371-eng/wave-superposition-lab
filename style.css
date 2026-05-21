@@ -255,3 +255,61 @@ button:hover {
     white-space: normal;
   }
 }
+
+.wf-main { background: #5c79c3; }
+.wf-highlight { background: #9b2fd8; }
+.wf-ray { background: #cc3f0c; }
+.wf-sine { background: #127a8a; }
+
+.wavefront-diagram-grid {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.wavefront-controls {
+  margin-top: 1rem;
+}
+
+.wavefront-controls .toggle-label {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0.9rem;
+  border: 2px solid #d5def2;
+  border-radius: 10px;
+  background: #f8faff;
+}
+
+.wavefront-controls input[type="checkbox"] {
+  width: 32px;
+  height: 32px;
+  accent-color: var(--accent);
+}
+
+.wavefront-legend {
+  margin-top: 0.8rem;
+}
+
+.exam-language-box {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: 2px solid #d5def2;
+  border-radius: 10px;
+  background: #f8faff;
+}
+
+.exam-language-box h3 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+}
+
+.exam-language-box ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.representation-note {
+  margin-top: 0.9rem;
+  font-weight: 700;
+  color: #173f97;
+}

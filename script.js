@@ -8,6 +8,8 @@ const phaseCtx = phaseCanvas.getContext("2d");
 
 const wavefrontCanvas = document.getElementById("wavefrontCanvas");
 const wavefrontCtx = wavefrontCanvas.getContext("2d");
+const linkedWaveCanvas = document.getElementById("linkedWaveCanvas");
+const linkedWaveCtx = linkedWaveCanvas.getContext("2d");
 
 const controls = {
   amp1: document.getElementById("amp1"),
@@ -17,6 +19,9 @@ const controls = {
   separation: document.getElementById("separation"),
   phase: document.getElementById("phase"),
   animationSpeed: document.getElementById("animationSpeed"),
+  wavefrontSpeed: document.getElementById("wavefrontSpeed"),
+  wavefrontAngle: document.getElementById("wavefrontAngle"),
+  showSamePhasePoints: document.getElementById("showSamePhasePoints"),
 };
 
 const readouts = {
@@ -29,10 +34,14 @@ const readouts = {
   phaseRad: document.getElementById("phaseRad"),
   animationSpeed: document.getElementById("animationSpeedValue"),
   interferenceLabel: document.getElementById("interferenceLabel"),
+  wavefrontSpeed: document.getElementById("wavefrontSpeedValue"),
+  wavefrontAngle: document.getElementById("wavefrontAngleValue"),
 };
 
 const pulsePlayPauseButton = document.getElementById("pulsePlayPause");
 const pulseResetButton = document.getElementById("pulseReset");
+const wavefrontPlayPauseButton = document.getElementById("wavefrontPlayPause");
+const wavefrontResetButton = document.getElementById("wavefrontReset");
 
 let pulseAnimationRunning = true;
 let pulseTime = 0;
@@ -225,50 +234,148 @@ function drawPhaseScene() {
   phaseCtx.fillText("Adjust phase difference to compare constructive and destructive interference.", 18, midY + 145);
 }
 
+let wavefrontPhaseOffset = 0;
+let wavefrontRunning = true;
+
+function drawArrow(ctx, sx, sy, ex, ey, color) {
+  const head = 16;
+  const angle = Math.atan2(ey - sy, ex - sx);
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.lineTo(ex, ey);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(ex, ey);
+  ctx.lineTo(ex - head * Math.cos(angle - Math.PI / 7), ey - head * Math.sin(angle - Math.PI / 7));
+  ctx.lineTo(ex - head * Math.cos(angle + Math.PI / 7), ey - head * Math.sin(angle + Math.PI / 7));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
 function drawWavefrontScene() {
   const width = wavefrontCanvas.width;
   const height = wavefrontCanvas.height;
+  const speed = Number(controls.wavefrontSpeed.value);
+  const angleRad = Number(controls.wavefrontAngle.value) * Math.PI / 180;
 
   wavefrontCtx.clearRect(0, 0, width, height);
-  wavefrontCtx.fillStyle = "#fcfdff";
-  wavefrontCtx.fillRect(0, 0, width, height);
 
-  wavefrontCtx.strokeStyle = "#5c79c3";
-  wavefrontCtx.lineWidth = 3;
+  const cx = width * 0.46;
+  const cy = height * 0.52;
+  const spacing = 75;
+  const lineLength = Math.max(width, height) * 1.8;
 
-  const spacing = 70;
-  for (let x = 110; x < width - 80; x += spacing) {
+  const tangentX = Math.cos(angleRad);
+  const tangentY = Math.sin(angleRad);
+  const normalX = -Math.sin(angleRad);
+  const normalY = Math.cos(angleRad);
+
+  const offset = ((wavefrontPhaseOffset % spacing) + spacing) % spacing;
+  let highlightBaseX = cx + (offset * normalX);
+  let highlightBaseY = cy + (offset * normalY);
+
+  for (let i = -9; i <= 9; i += 1) {
+    const shift = (i * spacing) + offset;
+    const bx = cx + shift * normalX;
+    const by = cy + shift * normalY;
+    const x1 = bx - lineLength * tangentX;
+    const y1 = by - lineLength * tangentY;
+    const x2 = bx + lineLength * tangentX;
+    const y2 = by + lineLength * tangentY;
+    wavefrontCtx.strokeStyle = i === 0 ? '#9b2fd8' : '#5c79c3';
+    wavefrontCtx.lineWidth = i === 0 ? 5 : 3;
     wavefrontCtx.beginPath();
-    wavefrontCtx.moveTo(x, 40);
-    wavefrontCtx.lineTo(x, height - 50);
+    wavefrontCtx.moveTo(x1, y1);
+    wavefrontCtx.lineTo(x2, y2);
     wavefrontCtx.stroke();
   }
 
-  wavefrontCtx.strokeStyle = "#cc3f0c";
-  wavefrontCtx.fillStyle = "#cc3f0c";
-  wavefrontCtx.lineWidth = 4;
+  const rayStartX = width * 0.10;
+  const rayStartY = height * 0.20;
+  const rayEndX = rayStartX + normalX * 220;
+  const rayEndY = rayStartY + normalY * 220;
+  drawArrow(wavefrontCtx, rayStartX, rayStartY, rayEndX, rayEndY, '#cc3f0c');
 
-  const startX = 130;
-  const startY = height / 2;
-  const endX = width - 160;
-  const endY = height / 2;
+  wavefrontCtx.fillStyle = '#1f2a3d';
+  wavefrontCtx.font = 'bold 28px Segoe UI';
+  wavefrontCtx.fillText('Ray direction', rayEndX + 10, rayEndY + 8);
 
-  wavefrontCtx.beginPath();
-  wavefrontCtx.moveTo(startX, startY);
-  wavefrontCtx.lineTo(endX, endY);
-  wavefrontCtx.stroke();
+  wavefrontCtx.font = 'bold 27px Segoe UI';
+  wavefrontCtx.fillStyle = '#9b2fd8';
+  wavefrontCtx.fillText('Wavefront', highlightBaseX + 24, highlightBaseY - 12);
 
-  wavefrontCtx.beginPath();
-  wavefrontCtx.moveTo(endX, endY);
-  wavefrontCtx.lineTo(endX - 18, endY - 11);
-  wavefrontCtx.lineTo(endX - 18, endY + 11);
-  wavefrontCtx.closePath();
-  wavefrontCtx.fill();
+  if (controls.showSamePhasePoints.checked) {
+    wavefrontCtx.fillStyle = '#9b2fd8';
+    for (let t = -160; t <= 160; t += 80) {
+      const px = highlightBaseX + t * tangentX;
+      const py = highlightBaseY + t * tangentY;
+      wavefrontCtx.beginPath();
+      wavefrontCtx.arc(px, py, 8, 0, TAU);
+      wavefrontCtx.fill();
+    }
+    wavefrontCtx.fillStyle = '#1f2a3d';
+    wavefrontCtx.font = 'bold 24px Segoe UI';
+    wavefrontCtx.fillText('same phase', highlightBaseX + 10, highlightBaseY + 36);
+  }
 
-  wavefrontCtx.fillStyle = "#21314d";
-  wavefrontCtx.font = "20px Segoe UI";
-  wavefrontCtx.fillText("Wavefronts (same phase)", 16, 30);
-  wavefrontCtx.fillText("Ray direction (perpendicular to wavefronts)", 16, height - 12);
+  drawLinkedSine(normalX, offset, spacing, speed);
+}
+
+function drawLinkedSine(normalX, offset, spacing) {
+  const width = linkedWaveCanvas.width;
+  const height = linkedWaveCanvas.height;
+  const midY = height / 2;
+
+  linkedWaveCtx.clearRect(0, 0, width, height);
+  linkedWaveCtx.strokeStyle = '#707d93';
+  linkedWaveCtx.lineWidth = 2;
+  linkedWaveCtx.beginPath();
+  linkedWaveCtx.moveTo(0, midY);
+  linkedWaveCtx.lineTo(width, midY);
+  linkedWaveCtx.stroke();
+
+  const amp = 42;
+  const wavelength = 220;
+  const k = TAU / wavelength;
+  const phase = (offset / spacing) * TAU;
+
+  linkedWaveCtx.strokeStyle = '#127a8a';
+  linkedWaveCtx.lineWidth = 4;
+  linkedWaveCtx.beginPath();
+  for (let x = 0; x <= width; x += 2) {
+    const y = midY - amp * Math.sin(k * x - phase);
+    if (x === 0) linkedWaveCtx.moveTo(x, y); else linkedWaveCtx.lineTo(x, y);
+  }
+  linkedWaveCtx.stroke();
+
+  const markerX = width * 0.35;
+  const markerY = midY - amp * Math.sin(k * markerX - phase);
+  linkedWaveCtx.fillStyle = '#9b2fd8';
+  linkedWaveCtx.beginPath();
+  linkedWaveCtx.arc(markerX, markerY, 9, 0, TAU);
+  linkedWaveCtx.fill();
+
+  linkedWaveCtx.strokeStyle = '#9b2fd8';
+  linkedWaveCtx.setLineDash([8, 8]);
+  linkedWaveCtx.beginPath();
+  linkedWaveCtx.moveTo(markerX, markerY + 10);
+  linkedWaveCtx.lineTo(markerX, height - 8);
+  linkedWaveCtx.stroke();
+  linkedWaveCtx.setLineDash([]);
+
+  linkedWaveCtx.fillStyle = '#1f2a3d';
+  linkedWaveCtx.font = 'bold 23px Segoe UI';
+  linkedWaveCtx.fillText('Linked sinusoidal view (same phase marker)', 20, 32);
+}
+
+function updateWavefrontReadouts() {
+  readouts.wavefrontSpeed.textContent = Number(controls.wavefrontSpeed.value).toFixed(2);
+  readouts.wavefrontAngle.textContent = String(Math.round(Number(controls.wavefrontAngle.value)));
 }
 
 function updateControlReadouts() {
@@ -286,6 +393,9 @@ function animate() {
 
   drawPulseScene();
   drawPhaseScene();
+  if (wavefrontRunning && Number(controls.wavefrontSpeed.value) > 0) {
+    wavefrontPhaseOffset += Number(controls.wavefrontSpeed.value) * 0.7;
+  }
   drawWavefrontScene();
 
   requestAnimationFrame(animate);
@@ -313,3 +423,27 @@ updateControlReadouts();
 updatePhaseReadout();
 updateAnimationSpeedReadout();
 animate();
+
+controls.wavefrontSpeed.addEventListener("input", updateWavefrontReadouts);
+controls.wavefrontAngle.addEventListener("input", updateWavefrontReadouts);
+
+wavefrontPlayPauseButton.addEventListener("click", () => {
+  wavefrontRunning = !wavefrontRunning;
+  wavefrontPlayPauseButton.textContent = wavefrontRunning ? "Pause" : "Play";
+});
+
+wavefrontResetButton.addEventListener("click", () => {
+  wavefrontPhaseOffset = 0;
+  controls.wavefrontSpeed.value = "0.6";
+  controls.wavefrontAngle.value = "90";
+  controls.showSamePhasePoints.checked = true;
+  wavefrontRunning = true;
+  wavefrontPlayPauseButton.textContent = "Pause";
+  updateWavefrontReadouts();
+});
+
+controls.showSamePhasePoints.addEventListener("change", () => {
+  drawWavefrontScene();
+});
+
+updateWavefrontReadouts();
